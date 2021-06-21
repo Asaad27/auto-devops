@@ -1764,7 +1764,7 @@ var defaults = $.fn.steps.defaults = {
      * @default true
      * @for defaults
      **/
-    enablePagination: true,
+    enablePagination: false,
 
     /**
      * Suppresses pagination if a form field is focused.
@@ -1804,7 +1804,7 @@ var defaults = $.fn.steps.defaults = {
      * @default true
      * @for defaults
      **/
-    enableFinishButton: true,
+    enableFinishButton: false,
 
     /**
      * Not yet implemented.

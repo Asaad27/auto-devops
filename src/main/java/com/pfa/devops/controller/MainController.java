@@ -1,47 +1,31 @@
 package com.pfa.devops.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
+import com.pfa.devops.model.Project;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class MainController {
-	Logger logger = LoggerFactory.getLogger(MainController.class);
-	boolean status = true;
 
-	@RequestMapping("/")
-	public String index(){
-		return "application-form.html";
+	@GetMapping("/processProject")
+	public String greetingForm(Model model) {
+		model.addAttribute("project", new Project());
+		return "application-form";
 	}
 
-
-	@RequestMapping("/loading")
-	public String loading(Model model){
-
-	return "";
+	@PostMapping("/processProject")
+	public String greetingSubmit(@ModelAttribute Project project, Model model) {
+		System.out.println(project.getProject_title());
+		model.addAttribute("project", project);
+		System.out.println(project.getProject_language());
+		System.out.println(project.getProject_docker_deployment());
+		System.out.println(project.getProject_model_training());
+		return "result";
 	}
-
-/*	public void myThread(){
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				myClassList.add(new MyClass("asaad",1));
-				try {
-					Thread.sleep(4000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				if (myClassList.size() >= 7)
-					status = false;
-			}
-		});
-
-		thread.start();
-	}*/
 
 }

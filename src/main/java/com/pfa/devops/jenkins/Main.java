@@ -1,4 +1,4 @@
-package ci;
+package com.pfa.devops.jenkins;
 
 
 import com.offbytwo.jenkins.JenkinsServer;

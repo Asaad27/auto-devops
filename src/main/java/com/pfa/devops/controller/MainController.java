@@ -30,18 +30,18 @@ import java.util.List;
 import java.util.Map;
 
 
-
 @Controller
 public class MainController {
 	private static final String XMLPATH = "src/main/java/com/pfa/devops/jenkins/job1.xml";
-	@Autowired
-	private ProjectService projectService;
-
 	public Project project;
 	public List<CustomPair> artifacts;
 	public JenkinsServer jenkins;
 	public JenkinsJob job;
 	public boolean isRunning = true;
+	public boolean isNotFinished = true;
+	Map<String, Job> jobs;
+	@Autowired
+	private ProjectService projectService;
 
 	@GetMapping("/processProject")
 	public String projectForm(Model model) {
@@ -55,12 +55,16 @@ public class MainController {
 		System.out.println("post");
 
 		projectService.create(project);
+		System.out.println("PROJECT ID : " + project.getProject_id());
 		project.setProject_title(project.getProject_title() + project.getProject_id());
 		projectService.update(project);
+		project.setProject_statue("BUILDING");
 		this.project = project;
 		artifacts = new ArrayList<>();
 		model.addAttribute("project", project);
 		model.addAttribute("artifacts", artifacts);
+		model.addAttribute("isNotFinished", isNotFinished);
+		model.addAttribute("isRunning", true);
 
 		createProject();
 		buildProject();
@@ -81,39 +85,38 @@ public class MainController {
 		System.out.println(this.project.getProject_title());
 		model.addAttribute("project", project);
 		model.addAttribute("isRunning", this.isRunning);
+		model.addAttribute("artifacts", artifacts);
 		System.out.println("from get : running " + this.isRunning);
-		if (!isRunning){
+		if (!isRunning && !project.getProject_statue().equals("BUILD FINISHED")) {
 			System.out.println("in get artifacts");
 			getArtifacts();
+			project.setProject_statue("BUILD FINISHED");
 			System.out.println("our from get artifacts");
 			model.addAttribute("artifacts", artifacts);
+			projectService.update(project);
+			model.addAttribute("isNotFinished", false);
 
 		}
 
-		try {
-			Map<String, Job> jobs = jenkins.getJobs();
-			JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
-			Build build = jobWithDetails.getLastBuild();
-			isRunning = build.details().isBuilding();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (isRunning) {
+			try {
+				jobs = jenkins.getJobs();
+				JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
+				jobWithDetails.updateDescription(project.getProject_description());
+				Build build = jobWithDetails.getLastBuild();
+				isRunning = build.details().isBuilding();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-
 
 		return "result-loading";
 	}
-/*@PostMapping("/result-loading")
-	public String resultGet(@ModelAttribute Project project, Model model){
-
-
-	}*/
-
-
 
 	public void createProject() {
 
 		try {
-			this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME,JenkinsJob.PASSWORD);
+			this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME, JenkinsJob.PASSWORD);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -121,7 +124,7 @@ public class MainController {
 		job.createJob();
 	}
 
-	public void buildProject(){
+	public void buildProject() {
 		// set parameters
 		Map<String, List<String>> params = new HashMap<>();
 		List<String> paramList1 = new ArrayList<>();
@@ -129,7 +132,7 @@ public class MainController {
 
 		JenkinsClient client = JenkinsClient.builder()
 				.endPoint(JenkinsJob.JENKINS_URI) //
-				.credentials(JenkinsJob.USERNAME+":"+ JenkinsJob.PASSWORD) // Optional.
+				.credentials(JenkinsJob.USERNAME + ":" + JenkinsJob.PASSWORD) // Optional.
 				.build();
 		SystemInfo systemInfo = client.api().systemApi().systemInfo();
 		System.out.println(systemInfo);
@@ -149,7 +152,7 @@ public class MainController {
 			Map<String, Job> jobs = jenkins.getJobs();
 			JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
 			Build build = jobWithDetails.getLastBuild();
-			List<Artifact> 	my_artifacts = build.details().getArtifacts();
+			List<Artifact> my_artifacts = build.details().getArtifacts();
 			for (Artifact art : my_artifacts) {
 				System.out.println(art.getFileName());
 				System.out.println(art.getDisplayPath());
@@ -162,9 +165,7 @@ public class MainController {
 				System.out.println(artifactUri);
 				artifacts.add(new CustomPair(art.getFileName(), artifactUri.toString()));
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
+		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}

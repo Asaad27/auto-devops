@@ -26,7 +26,7 @@ public class Project {
 
 	private String project_description;
 
-	private Boolean project_statue;
+	private String project_statue ;
 
 	private Boolean project_model_training;
 
@@ -142,11 +142,11 @@ public class Project {
 		this.project_description = project_description;
 	}
 
-	public Boolean getProject_statue() {
+	public String getProject_statue() {
 		return project_statue;
 	}
 
-	public void setProject_statue(Boolean project_statue) {
+	public void setProject_statue(String project_statue) {
 		this.project_statue = project_statue;
 	}
 

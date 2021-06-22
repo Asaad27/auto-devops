@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>register</title>
+
+    <link th:rel="stylesheet" th:href="@{assets/css/Pretty-Registration-Form.css}"/>
+    <link th:rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}"/>
+    <link th:rel="stylesheet" th:href="@{assets/css/styles.css} "/>
+</head>
+
+<body>
+<div class="row register-form">
+    <div class="col-md-8 offset-md-2">
+        <form action="#" method="post" class="custom-form" th:action="@{/register}" th:object="${user}">
+            <h1>Register Form</h1>
+            <div class="form-row form-group">
+                <div class="col-sm-4 label-column"><label class="col-form-label" for="name-input-field">Name </label></div>
+                <div class="col-sm-6 input-column"><input class="form-control" type="text"></div>
+            </div>
+            <div class="form-row form-group">
+                <div class="col-sm-4 label-column"><label class="col-form-label" for="email-input-field">Email </label></div>
+                <div class="col-sm-6 input-column"><input class="form-control" type="email"></div>
+            </div>
+            <div class="form-row form-group">
+                <div class="col-sm-4 label-column"><label class="col-form-label" for="pawssword-input-field">Password </label></div>
+                <div class="col-sm-6 input-column"><input class="form-control" type="password"></div>
+            </div>
+
+
+            <div class="form-row form-group">
+                <div class="col-sm-4 label-column"><label class="col-form-label" for="name-input-field">slack id </label></div>
+                <div class="col-sm-6 input-column"><input class="form-control" type="text"></div>
+            </div>
+
+            <div class="form-row form-group">
+                <div class="col-sm-4 label-column"><label class="col-form-label" for="name-input-field">github id </label></div>
+                <div class="col-sm-6 input-column"><input class="form-control" type="text"></div>
+            </div>
+
+
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-1"><label class="form-check-label" for="formCheck-1">I've read and accept the terms and conditions</label></div><button class="btn btn-light submit-button" type="button">Submit Form</button></form>
+    </div>
+</div>
+
+
+<script th:src="@{assets/js/jquery.min.js}"></script>
+<script th:src="@{assets/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+
+</html>

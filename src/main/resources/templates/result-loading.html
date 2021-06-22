@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>result loading</title>
-    <meta HTTP-EQUIV="refresh" content="5">
+    <div th:if="${isNotFinished}">
+        <meta HTTP-EQUIV="refresh" content="5">
+    </div>
+
+    <div th:if="${isRunning}">
+        <meta HTTP-EQUIV="refresh" content="3">
+    </div>
+
+
 </head>
 <body>
 <link th:rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}"/>
@@ -23,13 +31,13 @@
     <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/products">Projects</a>
+                <a class="nav-link" href="/">Projects</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href=" ">New project</a>
+                <a class="nav-link" href="/processProject ">New project</a>
             </li>
         </ul>
-        <a class="text-dark" href="/logout">Logout</a>   <!--add this-->
+        <a class="text-dark" href="/login">Logout</a>   <!--add this-->
     </div>
 </nav>
 
@@ -51,7 +59,6 @@
 </div>
 
 <div class="container">
-    <H1> Click to open Slack</H1>
     <a href="https://www.pfa-5yd9181.slack.com">
         <img class="align-content-center" th:src="@{assets/img/slack.png}">
     </a>
@@ -69,8 +76,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <td th:text="${project?.project_title}">Project</td>
-                    <td th:text="${project?.project_statue}">Statue</td>
+                <td th:text="${project?.project_title}">Project</td>
+                <td th:text="${project?.project_statue}">Statue</td>
                 </tr>
                 </tbody>
             </table>
@@ -94,6 +101,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="art : ${artifacts}">
+
                     <td th:text="${art?.artifact_name}">Artefacts</td>
                     <td>
                         <a th:href="@{${art?.url}}">view</a>

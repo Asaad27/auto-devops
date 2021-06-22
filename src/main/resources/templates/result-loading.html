@@ -14,7 +14,7 @@
 <!--Navbar TO EDIT LATER-->
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <a class="navbar-brand" href="/">
-        AUTOPS
+        <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,20 +26,16 @@
                 <a class="nav-link" href="/products">Projects</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href=" ">Blog</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href=" ">Contact</a>
+                <a class="nav-link" href=" ">New project</a>
             </li>
         </ul>
         <a class="text-dark" href="/logout">Logout</a>   <!--add this-->
     </div>
 </nav>
-<!-- end of navbar-->
 
 
-<div th:if="${status}">
-    ${status}
+<div th:if="${isRunning}">
+
     <div class="spinner-border text-dark" role="status">
         <span class="visually-hidden"></span>
     </div>
@@ -54,6 +50,37 @@
     </div>
 </div>
 
+<div class="container">
+    <H1> Click to open Slack</H1>
+    <a href="https://www.pfa-5yd9181.slack.com">
+        <img class="align-content-center" th:src="@{assets/img/slack.png}">
+    </a>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mt-5 mb-5">
+            <table id="examples" class="table table-bordered" style="width: 100%">
+                <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Statue</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <td th:text="${project?.project_title}">Project</td>
+                    <td th:text="${project?.project_statue}">Statue</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+
 
 <div class="container">
     <div class="row">
@@ -61,14 +88,17 @@
             <table id="example" class="table table-bordered" style="width: 100%">
                 <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Position</th>
+                    <th>Artefacts</th>
+                    <th>Link</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="employee : ${employees}">
-                    <td th:text="${employee.name}">Name</td>
-                    <td th:text="${employee.position}">Position</td>
+                <tr th:each="art : ${artifacts}">
+                    <td th:text="${art?.artifact_name}">Artefacts</td>
+                    <td>
+                        <a th:href="@{${art?.url}}">view</a>
+                    </td>
+
                 </tr>
                 </tbody>
             </table>

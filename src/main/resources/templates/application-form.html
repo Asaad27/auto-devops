@@ -31,7 +31,7 @@
 <!--Navbar TO EDIT LATER-->
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <a class="navbar-brand" href="/">
-        AUTOPS
+       <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +43,7 @@
                 <a class="nav-link" href="/products">Projects</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href=" ">Blog</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href=" ">Contact</a>
+                <a class="nav-link" href=" ">New project</a>
             </li>
         </ul>
         <a class="text-dark" href="/logout">Logout</a>   <!--add this-->
@@ -58,11 +55,11 @@
     <div class="main">
 
         <div class="container">
-            <form  action="#" th:action="@{/processProject}" th:object="${project}"  method="post"  class="signup-form"  >
+            <form  action="#" th:action="@{/resultLoading}" th:object="${project}"  method="post"  class="signup-form"  >
                 <div>
-                    <h3>Project info</h3>
+                    <h1>Pipeline details</h1>
 
-                        <h2>Project informations</h2>
+                        <h3>Project informations</h3>
                         <p class="desc">Please enter your project infomation and proceed to next step so we can build your pipeline</p>
                         <div class="fieldset-content">
                             <div class="form-group">
@@ -103,28 +100,29 @@
                             <div class="form-group">
                                 <h6>project language</h6>
                                 <label class="radio-inline"><input id="python"th:field="*{project_language}" type="radio" name="optradio" th:value="Python">Python</label>
-                                <label class="radio-inline"><input id="flask" th:field="*{project_language}" type="radio" name="optradio" th:value="Flask">Flask</label>
                                 <label class="radio-inline"><input id="maven" th:field="*{project_language}" type="radio" name="optradio" th:value="Maven">Maven</label>
-                                <label class="radio-inline"><input id="react" th:field="*{project_language}" type="radio" name="optradio" th:value="React">React</label>
+
                             </div>
 
                             <div class="form-group">
-                                <h6>Machine learning model training ? </h6>
+                                <h6>Machine learning model training ? (python only) </h6>
                                 <label class="radio-inline"><input id="ml_yes" th:field="*{project_model_training}" type="radio" name="optradio" th:value="${true}" >Yes</label>
                                 <label class="radio-inline"><input id="ml_no"  th:field="*{project_model_training}"  type="radio" name="optradio" th:value="${false}">No</label>
                             </div>
 
-                            <div class="form-group">
+<!--                            <div class="form-group">
                                 <h6>Unit testing ? </h6>
                                 <label class="radio-inline"><input id="unit_yes" th:field="*{project_unit_testing}" type="radio" name="optradio" th:value="${true}">Yes</label>
                                 <label class="radio-inline"><input id="unit_no" th:field="*{project_unit_testing}" type="radio" name="optradio" th:value="${false}">No</label>
-                            </div>
+                            </div>-->
 
                             <div class="form-group">
-                                <h6>Docker deployment </h6>
-                                <label class="radio-inline"><input id="docker_yes" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${true}">>Yes</label>
+                                <h6>Docker Deployment </h6>
+                                <label class="radio-inline"><input id="docker_yes" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${true}">Yes</label>
                                 <label class="radio-inline"><input id="docker_no" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${false}">No</label>
                             </div>
+
+
 
                             <div class="form-group">
                                 <h6>Aws Kubernetes deployment </h6>
@@ -134,14 +132,16 @@
 
                             <div class="form-group">
                                 <label for="accuracy" class="form-label">Required model accuracy</label>
-                                <input type="number" name="accuracy" id="accuracy" th:field="*{project_model_accuracy}" />
+                                <input type="number" step="any" name="accuracy" id="accuracy" th:field="*{project_model_accuracy}" />
                             </div>
 
 
                         </div>
                     </fieldset>
 
+
                     <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+
 
                 </div>
 

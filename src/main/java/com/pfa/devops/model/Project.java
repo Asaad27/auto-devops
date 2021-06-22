@@ -2,7 +2,6 @@ package com.pfa.devops.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,8 +15,6 @@ public class Project {
 	private String project_title;
 
 	private String project_github_repo;
-
-	private String project_docker_repo;
 
 	private String project_language; //python, java, react
 
@@ -33,9 +30,9 @@ public class Project {
 
 	private Boolean project_model_training;
 
-	private float project_model_accuracy;
+	private String project_model_accuracy;
 
-	private Boolean project_unit_testing;
+	private Boolean project_unit_testing = false;
 
 	private Boolean project_docker_deployment;
 
@@ -46,10 +43,39 @@ public class Project {
 	@ManyToMany(mappedBy = "projects")
 	private Set<User> users = new HashSet<>();
 
+
+	public int find_project_Type(){
+		if (project_language.equals("python")){
+			if(project_model_training && project_unit_testing && project_docker_deployment && project_aws_deployment)
+				this.project_type = 4;
+			else if (project_model_training && project_unit_testing && project_docker_deployment)
+				this.project_type = 3;
+			else if (project_model_training && project_unit_testing)
+				this.project_type = 2;
+			else if (project_docker_deployment && project_unit_testing)
+				this.project_type = 5;
+			else if (project_aws_deployment && project_docker_deployment)
+				this.project_type = 8;
+			else if (project_docker_deployment)
+				this.project_type = 6;
+			else if (project_model_training)
+				this.project_type = 1;
+			else if (project_aws_deployment)
+				this.project_type = 7;
+		}
+		else{
+			if (project_aws_deployment)
+				this.project_type = 9;
+			else
+				this.project_type = 10;
+		}
+
+		return project_type;
+	}
+
 	@Override
 	public String toString() {
-		String s = project_id + " type " + project_type + " docker? " + project_docker_deployment + " lang " + project_language + " title " + project_title;
-		return s;
+		return project_id + " type " + project_type + " docker? " + project_docker_deployment + " lang " + project_language + " title " + project_title;
 	}
 
 	public String getProject_title() {
@@ -74,14 +100,6 @@ public class Project {
 
 	public void setProject_github_repo(String project_github_repo) {
 		this.project_github_repo = project_github_repo;
-	}
-
-	public String getProject_docker_repo() {
-		return project_docker_repo;
-	}
-
-	public void setProject_docker_repo(String project_docker_repo) {
-		this.project_docker_repo = project_docker_repo;
 	}
 
 	public String getProject_language() {
@@ -140,11 +158,11 @@ public class Project {
 		this.project_model_training = project_model_training;
 	}
 
-	public float getProject_model_accuracy() {
+	public String getProject_model_accuracy() {
 		return project_model_accuracy;
 	}
 
-	public void setProject_model_accuracy(float project_model_accuracy) {
+	public void setProject_model_accuracy(String project_model_accuracy) {
 		this.project_model_accuracy = project_model_accuracy;
 	}
 

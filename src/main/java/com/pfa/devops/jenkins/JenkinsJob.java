@@ -1,11 +1,14 @@
-package ci;
+package com.pfa.devops.jenkins;
 
 import com.cdancy.jenkins.rest.JenkinsClient;
 import com.cdancy.jenkins.rest.domain.common.Error;
 import com.cdancy.jenkins.rest.domain.common.IntegerResponse;
 import com.cdancy.jenkins.rest.domain.job.BuildInfo;
 import com.cdancy.jenkins.rest.domain.queue.QueueItem;
+import com.cdancy.jenkins.rest.domain.system.SystemInfo;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.Artifact;
+import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.Job;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.sun.jersey.api.client.Client;
@@ -23,21 +26,23 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class JenkinsJob {
 
-	private static final String JENKINS_URI = "http://localhost:8080";
-	private static final String USERNAME = "firstAdmin";
-	private static final String PASSWORD = "1191e8798b94ac79434a686b0070a4c956";   //password should be token api, otherwise crumb error 401
+	public static final String JENKINS_URI = "http://localhost:8080";
+	public static final String USERNAME = "firstAdmin";
+	public static final String PASSWORD = "1191e8798b94ac79434a686b0070a4c956";   //password should be token api, otherwise crumb error 401
 
 	private String job_name;
-	private String xml_job_config_path = "src/main/java/ci/job.xml";
+	private String xml_job_config_path = "src/main/java/com/pfa/devops/jenkins/job1.xml";
 
 	public JenkinsJob(String job_name, String xml_job_config_path) {
 		this.job_name = job_name;
@@ -55,6 +60,28 @@ public class JenkinsJob {
 	}
 
 
+	public static void createParametrizedBuildGitFlag(String param1, String param2, String jobName){
+		JenkinsClient client = JenkinsClient.builder()
+				.endPoint(JENKINS_URI) //
+				.credentials(USERNAME+":"+PASSWORD) // Optional.
+				.build();
+		SystemInfo systemInfo = client.api().systemApi().systemInfo();
+		System.out.println(systemInfo);
+
+		// set parameters
+		Map<String, List<String>> params = new HashMap<>();
+		List<String> paramList1 = new ArrayList<>();
+		List<String> paramList2 = new ArrayList<>();
+
+		paramList1.add(param1);
+		paramList2.add(param2);
+		params.put("GITHUB", paramList1);
+		params.put("FLAG", paramList2);
+
+// sending request
+		IntegerResponse response = client.api().jobsApi()
+				.buildWithParameters(null, jobName, params);
+	}
 
 	public static List<String> listJobs() {
 		Client client = Client.create();
@@ -78,7 +105,33 @@ public class JenkinsJob {
 		}
 		return jobList;
 	}
+	public List<CustomPair> getArtifactUrl(String job_name){
+		List<CustomPair> pairList = new ArrayList<>();
+		try {
+			JenkinsServer jenkins = new JenkinsServer(new URI(JENKINS_URI), USERNAME, PASSWORD);
+			Map<String, Job> jobs = jenkins.getJobs();
+			JobWithDetails jobWithDetails = jobs.get(job_name).details();
+			//System.out.println(jobWithDetails.getLastSuccessfulBuild().details().getConsoleOutputText());
+			Build build = jobWithDetails.getLastSuccessfulBuild();
+			List<Artifact> 	artifacts = build.details().getArtifacts();
+			for (Artifact art : artifacts){
+				System.out.println(art.getFileName());
+				System.out.println(art.getDisplayPath());
+				System.out.println(art.getRelativePath());
+				System.out.println("downloading");
+				InputStream inputStream = build.details().downloadArtifact(art);
+				URI uri = new URI(build.getUrl());
+				String artifactPath = uri.getPath() + "artifact/" + art.getRelativePath();
+				URI artifactUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), artifactPath, "", "");
+				System.out.println(artifactUri);
+				pairList.add(new CustomPair(art.getFileName(), artifactUri.toString()));
+			}
+		} catch (URISyntaxException | IOException e) {
+			e.printStackTrace();
+		}
 
+		return pairList;
+	}
 	private boolean areErrors(List<Error> errors) {
 		int num_errors = 0;
 		for (Error error : errors) {

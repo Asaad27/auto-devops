@@ -38,6 +38,8 @@ public class Project {
 
 	private Boolean project_aws_deployment;
 
+	private String lastBuild;
+
 	private int project_type; //0, is model training, 1 modeltraining+docker, 3....
 
 	@ManyToMany(mappedBy = "projects")
@@ -200,6 +202,14 @@ public class Project {
 
 	public Set<User> getUsers() {
 		return users;
+	}
+
+	public String getLastBuild() {
+		return lastBuild;
+	}
+
+	public void setLastBuild(String lastBuild) {
+		this.lastBuild = lastBuild;
 	}
 
 	public void setUsers(Set<User> users) {

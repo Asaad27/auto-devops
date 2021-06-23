@@ -25,17 +25,25 @@ public class UserController {
 		return "register-form";
 	}
 
+
 	@PostMapping("/register")
 	public String registerPost(@ModelAttribute User user, Model model) {
+
 		userService.create(user);
 
-		return "login";
+		return "redirect:/Login";
 	}
 
 	@GetMapping("/login")
 	public String loginForm(Model model) {
 		model.addAttribute("user", new User());
 
+		return "login";
+	}
+
+	@GetMapping("/")
+	public String loginFormRoot(Model model) {
+		model.addAttribute("user", new User());
 		return "login";
 	}
 

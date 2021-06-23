@@ -30,8 +30,8 @@
 
 <!--Navbar TO EDIT LATER-->
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
-    <a class="navbar-brand" href="/">
-       <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
+    <a class="navbar-brand" href="/projectList">
+        <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,13 +40,13 @@
     <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/products">Projects</a>
+                <a class="nav-link" href="/projectList">Projects</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/processProject ">New project</a>
             </li>
         </ul>
-        <a class="text-dark" href="/login">Logout</a>   <!--add this-->
+        <a class="title" href="/login">Logout</a>
     </div>
 </nav>
 <!-- end of navbar-->
@@ -64,30 +64,30 @@
                         <div class="fieldset-content">
                             <div class="form-group">
                                 <label  class="form-label">Title</label>
-                                <input type="text" name="title"  th:field="*{project_title}"   />
+                                <input type="text" name="title"  th:field="*{project_title}"  required />
                             </div>
                             <div class="form-group">
                                 <label  class="form-label">Email</label>
-                                <input type="email" name="email" th:field="*{project_email}" />
+                                <input type="email" name="email" th:field="*{project_email}" required />
                             </div>
 
                             <div class="form-group">
                                 <label  class="form-label">Github Link</label>
-                                <input type="text" name="github_repo" th:field="*{project_github_repo}" />
+                                <input type="text" name="github_repo" th:field="*{project_github_repo}" required/>
                             </div>
 
                             <div class="form-group">
                                 <label for="project_description" class="form-label">description</label>
-                                <textarea id="project_description" name="description" rows="4" cols="50" th:field="*{project_description}"></textarea>
+                                <textarea id="project_description" name="description" rows="4" cols="50" th:field="*{project_description}" required></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="project_slack_id" class="form-label">Slack Id</label>
-                                <input type="text" name="project_slack_id" id="project_slack_id" th:field="*{project_slack_id}" />
+                                <input type="text" name="project_slack_id" id="project_slack_id" th:field="*{project_slack_id}" required/>
                             </div>
                             <div class="form-group">
                                 <label for="project_jenkins_uri" class="form-label">Jenkins Url</label>
-                                <input type="text" name="jenkins_url" id="project_jenkins_uri" th:field="*{project_jenkins_uri}" />
+                                <input type="text" name="jenkins_url" id="project_jenkins_uri" th:field="*{project_jenkins_uri}" required/>
                             </div>
 
                         </div>
@@ -99,15 +99,15 @@
 
                             <div class="form-group">
                                 <h6>project language</h6>
-                                <label class="radio-inline"><input id="python"th:field="*{project_language}" type="radio" name="optradio" th:value="Python">Python</label>
-                                <label class="radio-inline"><input id="maven" th:field="*{project_language}" type="radio" name="optradio" th:value="Maven">Maven</label>
+                                <label class="radio-inline"><input id="python"th:field="*{project_language}" type="radio" name="optradio" th:value="Python" required>Python</label>
+                                <label class="radio-inline"><input id="maven" th:field="*{project_language}" type="radio" name="optradio" th:value="Maven" required>Maven</label>
 
                             </div>
 
                             <div class="form-group">
                                 <h6>Machine learning model training ? (python only) </h6>
-                                <label class="radio-inline"><input id="ml_yes" th:field="*{project_model_training}" type="radio" name="optradio" th:value="${true}" >Yes</label>
-                                <label class="radio-inline"><input id="ml_no"  th:field="*{project_model_training}"  type="radio" name="optradio" th:value="${false}">No</label>
+                                <label class="radio-inline"><input id="ml_yes" th:field="*{project_model_training}" type="radio" name="optradio" th:value="${true}" required>Yes</label>
+                                <label class="radio-inline"><input id="ml_no"  th:field="*{project_model_training}"  type="radio" name="optradio" th:value="${false}" required>No</label>
                             </div>
 
 <!--                            <div class="form-group">
@@ -118,21 +118,21 @@
 
                             <div class="form-group">
                                 <h6>Docker Deployment </h6>
-                                <label class="radio-inline"><input id="docker_yes" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${true}">Yes</label>
-                                <label class="radio-inline"><input id="docker_no" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${false}">No</label>
+                                <label class="radio-inline"><input id="docker_yes" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${true}" required>Yes</label>
+                                <label class="radio-inline"><input id="docker_no" th:field="*{project_docker_deployment}" type="radio" name="optradio" th:value="${false}" required>No</label>
                             </div>
 
 
 
                             <div class="form-group">
                                 <h6>Aws Kubernetes deployment </h6>
-                                <label class="radio-inline"><input id="aws_yes" th:field="*{project_aws_deployment}" type="radio" name="optradio" th:value="${true}">Yes</label>
-                                <label class="radio-inline"><input id="aws_no"  th:field="*{project_aws_deployment}" type="radio" name="optradio" th:value="${false}">No</label>
+                                <label class="radio-inline"><input id="aws_yes" th:field="*{project_aws_deployment}" type="radio" name="optradio" th:value="${true}" required>Yes</label>
+                                <label class="radio-inline"><input id="aws_no"  th:field="*{project_aws_deployment}" type="radio" name="optradio" th:value="${false}" required>No</label>
                             </div>
 
                             <div class="form-group">
                                 <label for="accuracy" class="form-label">Required model accuracy</label>
-                                <input type="number" step="any" name="accuracy" id="accuracy" th:field="*{project_model_accuracy}" />
+                                <input type="number" step="any" name="accuracy" id="accuracy" th:field="*{project_model_accuracy}" required/>
                             </div>
 
 

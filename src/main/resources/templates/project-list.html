@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Project list</title>
+
+</head>
+<body>
+<link th:rel="stylesheet" th:href="@{assets/bootstrap/css/bootstrap.min.css}"/>
+<link th:rel="stylesheet" th:href="@{assets/fonts/ionicons.min.css}"/>
+<link th:rel="stylesheet" th:href="@{assets/css/styles.css} "/>
+
+
+<!--Navbar TO EDIT LATER-->
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <a class="navbar-brand" href="/projectList">
+        <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/projectList">Projects</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/processProject ">New project</a>
+            </li>
+        </ul>
+        <a class="title" href="/login">Logout</a>
+    </div>
+</nav>
+<!-- end of navbar-->
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mt-5 mb-5">
+            <table id="examples" class="table table-bordered" style="width: 100%">
+                <thead>
+                <tr>
+                    <th>Project Title</th>
+                    <th>Description</th>
+                    <th>Last build</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="project : ${projectList}">
+                    <td th:text="${project.project_title}">Project title</td>
+                    <td th:text="${project.project_description}">Description</td>
+                    <td th:text="${project.lastBuild}">last build</td>
+                    <td> <a th:href="@{/buildProject/{id}(id=${project.project_id})}" class="btn btn-primary">Build</a>
+                        <a th:href="@{/deleteProject/{id}(id=${project.project_id})}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+
+</body>
+</html>

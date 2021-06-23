@@ -21,7 +21,7 @@
 
 <!--Navbar TO EDIT LATER-->
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
-    <a class="navbar-brand" href="/">
+    <a class="navbar-brand" href="/projectList">
         <img style="width:200px;height:80px;" th:src="@{assets/img/autoDevops.png}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
@@ -31,15 +31,16 @@
     <div class="collapse navbar-collapse" id="navbarText">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/">Projects</a>
+                <a class="nav-link" href="/projectList">Projects</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/processProject ">New project</a>
             </li>
         </ul>
-        <a class="text-dark" href="/login">Logout</a>   <!--add this-->
+        <a class="title" href="/login">Logout</a>
     </div>
 </nav>
+<!-- end of navbar-->
 
 
 <div th:if="${isRunning}">
@@ -60,7 +61,7 @@
 
 <div class="container">
     <a href="https://www.pfa-5yd9181.slack.com">
-        <img class="align-content-center" th:src="@{assets/img/slack.png}">
+        <img class="align-content-center"  style="width:500px;height:200px;" th:src="@{assets/img/slack.png}">
     </a>
 
 </div>

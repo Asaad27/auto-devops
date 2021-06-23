@@ -12,22 +12,22 @@ import com.offbytwo.jenkins.model.JobWithDetails;
 import com.pfa.devops.jenkins.CustomPair;
 import com.pfa.devops.jenkins.JenkinsJob;
 import com.pfa.devops.model.Project;
+import com.pfa.devops.model.User;
 import com.pfa.devops.service.ProjectService;
+import com.pfa.devops.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -40,24 +40,59 @@ public class MainController {
 	public boolean isRunning = true;
 	public boolean isNotFinished = true;
 	Map<String, Job> jobs;
+	private User currentUser;
+
 	@Autowired
 	private ProjectService projectService;
 
+	@Autowired
+	private UserService userService;
+
+	private Project buildProject;
+	private Boolean isFromBuild = false;
+
+	@GetMapping("/buildProject/{id}")
+	public String buildProject(@PathVariable(value = "id") int id, Model model) {
+
+		Project project = projectService.findById(id);
+		buildProject = project;
+		isFromBuild = true;
+
+		return "redirect:/processProject";
+	}
+
 	@GetMapping("/processProject")
 	public String projectForm(Model model) {
-		model.addAttribute("project", new Project());
+
+		if (!isFromBuild)
+			model.addAttribute("project", new Project());
+		else{
+			model.addAttribute("project", buildProject);
+			isFromBuild = false;
+		}
+
 		return "application-form";
 	}
 
 	@PostMapping("/resultLoading")
 	public String projectSubmit(@ModelAttribute Project project, Model model) {
+		boolean projectExist = (projectService.findByName(project.getProject_title()) != null);
+		if (!projectExist) {
+			projectService.create(project);
+			System.out.println("PROJECT ID : " + project.getProject_id());
+			project.setProject_title(project.getProject_title() + project.getProject_id());
+			projectService.update(project);
+			userService.addProject(UserController.current_user.getUser_id(), project);
+			UserController.current_user = userService.findById(UserController.current_user.getUser_id());
+		}else
+		{
+			System.out.println("project : " + project.getProject_title() + " exist");
+		}
+		System.out.println("User id : " + UserController.current_user.getUser_id());
+		Set<Project> projectSet = userService.findProjectsByUserId(UserController.current_user.getUser_id());
+		for (Project p : projectSet)
+			System.out.println(p.getProject_title());
 
-		System.out.println("post");
-
-		projectService.create(project);
-		System.out.println("PROJECT ID : " + project.getProject_id());
-		project.setProject_title(project.getProject_title() + project.getProject_id());
-		projectService.update(project);
 		project.setProject_statue("BUILDING");
 		this.project = project;
 		artifacts = new ArrayList<>();
@@ -93,11 +128,20 @@ public class MainController {
 			project.setProject_statue("BUILD FINISHED");
 			System.out.println("our from get artifacts");
 			model.addAttribute("artifacts", artifacts);
-			projectService.update(project);
 			model.addAttribute("isNotFinished", false);
+			try {
+				this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME, JenkinsJob.PASSWORD);
+				jobs = jenkins.getJobs();
+				JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
+				Build build = jobWithDetails.getLastBuild();
+				System.out.println(build.details().getResult().toString());
+				project.setLastBuild(build.details().getResult().toString());
+				projectService.update(project);
+			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+			}
 
 		}
-
 		if (isRunning) {
 			try {
 				jobs = jenkins.getJobs();
@@ -112,6 +156,8 @@ public class MainController {
 
 		return "result-loading";
 	}
+
+
 
 	public void createProject() {
 

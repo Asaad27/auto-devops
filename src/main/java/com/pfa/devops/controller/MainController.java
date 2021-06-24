@@ -32,7 +32,7 @@ import java.util.*;
 
 @Controller
 public class MainController {
-	private static final String XMLPATH = "src/main/java/com/pfa/devops/jenkins/job1.xml";
+	private static String XMLPATH = "src/main/java/com/pfa/devops/jenkins/jobTemplates/job";
 	public Project project;
 	public List<CustomPair> artifacts;
 	public JenkinsServer jenkins;
@@ -40,7 +40,7 @@ public class MainController {
 	public boolean isRunning = true;
 	public boolean isNotFinished = true;
 	Map<String, Job> jobs;
-	private User currentUser;
+
 
 	@Autowired
 	private ProjectService projectService;
@@ -52,10 +52,10 @@ public class MainController {
 	private Boolean isFromBuild = false;
 
 	@GetMapping("/buildProject/{id}")
-	public String buildProject(@PathVariable(value = "id") int id, Model model) {
+	public String buildParamProject(@PathVariable(value = "id") int id, Model model) {
 
-		Project project = projectService.findById(id);
-		buildProject = project;
+		buildProject = projectService.findById(id);
+		buildProject.setProject_statue("Not started");
 		isFromBuild = true;
 
 		return "redirect:/processProject";
@@ -79,20 +79,15 @@ public class MainController {
 		boolean projectExist = (projectService.findByName(project.getProject_title()) != null);
 		if (!projectExist) {
 			projectService.create(project);
-			System.out.println("PROJECT ID : " + project.getProject_id());
 			project.setProject_title(project.getProject_title() + project.getProject_id());
+			project.find_project_Type();
 			projectService.update(project);
 			userService.addProject(UserController.current_user.getUser_id(), project);
 			UserController.current_user = userService.findById(UserController.current_user.getUser_id());
-		}else
-		{
-			System.out.println("project : " + project.getProject_title() + " exist");
 		}
-		System.out.println("User id : " + UserController.current_user.getUser_id());
-		Set<Project> projectSet = userService.findProjectsByUserId(UserController.current_user.getUser_id());
-		for (Project p : projectSet)
-			System.out.println(p.getProject_title());
-
+		//check project type again
+		isRunning = true;
+		project.find_project_Type();
 		project.setProject_statue("BUILDING");
 		this.project = project;
 		artifacts = new ArrayList<>();
@@ -102,7 +97,7 @@ public class MainController {
 		model.addAttribute("isRunning", true);
 
 		createProject();
-		buildProject();
+		buildParamProject();
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -116,30 +111,16 @@ public class MainController {
 	@GetMapping("/resultLoading")
 	public String resultGet(Model model) {
 
-		System.out.println("get");
-		System.out.println(this.project.getProject_title());
 		model.addAttribute("project", project);
 		model.addAttribute("isRunning", this.isRunning);
 		model.addAttribute("artifacts", artifacts);
-		System.out.println("from get : running " + this.isRunning);
+
 		if (!isRunning && !project.getProject_statue().equals("BUILD FINISHED")) {
-			System.out.println("in get artifacts");
 			getArtifacts();
 			project.setProject_statue("BUILD FINISHED");
-			System.out.println("our from get artifacts");
 			model.addAttribute("artifacts", artifacts);
 			model.addAttribute("isNotFinished", false);
-			try {
-				this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME, JenkinsJob.PASSWORD);
-				jobs = jenkins.getJobs();
-				JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
-				Build build = jobWithDetails.getLastBuild();
-				System.out.println(build.details().getResult().toString());
-				project.setLastBuild(build.details().getResult().toString());
-				projectService.update(project);
-			} catch (IOException | URISyntaxException e) {
-				e.printStackTrace();
-			}
+
 
 		}
 		if (isRunning) {
@@ -161,16 +142,18 @@ public class MainController {
 
 	public void createProject() {
 
+
 		try {
 			this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME, JenkinsJob.PASSWORD);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		job = new JenkinsJob(project.getProject_title(), XMLPATH);
+
+		job = new JenkinsJob(project.getProject_title(), XMLPATH+project.getProject_type()+".xml");
 		job.createJob();
 	}
 
-	public void buildProject() {
+	public void buildParamProject() {
 		// set parameters
 		Map<String, List<String>> params = new HashMap<>();
 		List<String> paramList1 = new ArrayList<>();
@@ -180,8 +163,7 @@ public class MainController {
 				.endPoint(JenkinsJob.JENKINS_URI) //
 				.credentials(JenkinsJob.USERNAME + ":" + JenkinsJob.PASSWORD) // Optional.
 				.build();
-		SystemInfo systemInfo = client.api().systemApi().systemInfo();
-		System.out.println(systemInfo);
+		//SystemInfo systemInfo = client.api().systemApi().systemInfo();
 
 		paramList1.add(project.getProject_github_repo());
 		paramList2.add(project.getProject_model_accuracy());
@@ -195,16 +177,11 @@ public class MainController {
 
 	public void getArtifacts() {
 		try {
-			Map<String, Job> jobs = jenkins.getJobs();
+			jobs = jenkins.getJobs();
 			JobWithDetails jobWithDetails = jobs.get(project.getProject_title()).details();
 			Build build = jobWithDetails.getLastBuild();
 			List<Artifact> my_artifacts = build.details().getArtifacts();
 			for (Artifact art : my_artifacts) {
-				System.out.println(art.getFileName());
-				System.out.println(art.getDisplayPath());
-				System.out.println(art.getRelativePath());
-				System.out.println("downloading");
-				InputStream inputStream = build.details().downloadArtifact(art);
 				URI uri = new URI(build.getUrl());
 				String artifactPath = uri.getPath() + "artifact/" + art.getRelativePath();
 				URI artifactUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), artifactPath, "", "");

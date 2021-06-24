@@ -32,32 +32,24 @@ public class Project {
 
 	private String project_model_accuracy;
 
-	private Boolean project_unit_testing = false;
-
 	private Boolean project_docker_deployment;
 
 	private Boolean project_aws_deployment;
 
 	private String lastBuild;
 
-	private int project_type; //0, is model training, 1 modeltraining+docker, 3....
+	private int project_type;
 
 	@ManyToMany(mappedBy = "projects")
 	private Set<User> users = new HashSet<>();
 
 
 	public int find_project_Type(){
-		if (project_language.equals("python")){
-			if(project_model_training && project_unit_testing && project_docker_deployment && project_aws_deployment)
+		if (project_language.equals("Python")){
+			if(project_model_training && project_docker_deployment && project_aws_deployment)
 				this.project_type = 4;
-			else if (project_model_training && project_unit_testing && project_docker_deployment)
+			else if (project_model_training && project_docker_deployment)
 				this.project_type = 3;
-			else if (project_model_training && project_unit_testing)
-				this.project_type = 2;
-			else if (project_docker_deployment && project_unit_testing)
-				this.project_type = 5;
-			else if (project_aws_deployment && project_docker_deployment)
-				this.project_type = 8;
 			else if (project_docker_deployment)
 				this.project_type = 6;
 			else if (project_model_training)
@@ -166,14 +158,6 @@ public class Project {
 
 	public void setProject_model_accuracy(String project_model_accuracy) {
 		this.project_model_accuracy = project_model_accuracy;
-	}
-
-	public Boolean getProject_unit_testing() {
-		return project_unit_testing;
-	}
-
-	public void setProject_unit_testing(Boolean project_unit_testing) {
-		this.project_unit_testing = project_unit_testing;
 	}
 
 	public Boolean getProject_docker_deployment() {

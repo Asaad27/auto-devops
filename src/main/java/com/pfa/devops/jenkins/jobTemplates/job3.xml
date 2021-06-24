@@ -1,0 +1,208 @@
+<flow-definition plugin="workflow-job@2.41">
+    <link type="text/css" rel="stylesheet" id="dark-mode-custom-link"/>
+    <link type="text/css" rel="stylesheet" id="dark-mode-general-link"/>
+    <style lang="en" type="text/css" id="dark-mode-custom-style"/>
+    <style lang="en" type="text/css" id="dark-mode-native-style"/>
+    <actions>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.8.5"/>
+        <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.8.5">
+            <jobProperties/>
+            <triggers/>
+            <parameters/>
+            <options/>
+        </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+    </actions>
+    <description>hello world</description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>GITHUB</name>
+                    <trim>false</trim>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>FLAG</name>
+                    <description>desired accuracy</description>
+                    <defaultValue>80</defaultValue>
+                    <trim>false</trim>
+                </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.92">
+        <script>
+            pipeline {
+
+            environment {
+            dockerHome = tool 'myDocker'
+            PATH = "$dockerHome/bin:$PATH"
+            }
+
+            agent any
+
+
+            stages {
+            //CheckOut stage
+            stage('CheckOut') {
+            steps {
+
+            slackSend color: '#000000', message: "Build Started: ${env.JOB_NAME} ${env.BUILD_NUMBER} *************", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            echo 'Build'
+            echo "Path - $PATH"
+            echo "Build id - $env.BUILD_ID"
+            echo "JOB name - $env.JOB_NAME"
+            echo "github parameter = $GITHUB"
+            }
+            }
+
+
+            stage('git clone') {
+            steps {
+            script {
+            sh """
+            pwd
+            rm -rf cloning$env.BUILD_ID
+            git clone $GITHUB cloning$env.BUILD_ID
+            cd cloning$env.BUILD_ID
+            cp -rfv * ..
+            cd ..
+            rm -r cloning$env.BUILD_ID
+            """
+            }
+            }
+            }
+
+
+            //Build docker image
+            stage('Build training docker Image') {
+            steps {
+            script {
+            slackSend color: '#000000', message: "building docker image", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            sh """
+            pwd
+            docker build -t asaad27/my_repo:ModelTrainig${env.JOB_NAME} .
+            """
+            }
+            }
+            }
+
+
+            //run Docker Image
+            stage('run training Docker Image') {
+            steps {
+            script {
+            slackSend color: '#000000', message: "running docker image", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            sh """
+            pwd
+
+            docker run -v C:/WINDOWS/system32/config/systemprofile/AppData/Local/Jenkins/.jenkins/workspace/$env.JOB_NAME:/MLOps  asaad27/my_repo:ModelTrainig${env.JOB_NAME}
+            """
+            }
+            }
+            }
+
+            stage('checking accuracy') {
+            steps {
+            script {
+            slackSend color: '#000000', message: "collecting results", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            def acc = readFile(file: 'result.txt')
+            sh """
+            pwd
+            flag=$FLAG
+            pwd
+            ls -l
+            """
+            if (acc >= FLAG) {
+            slackSend color: '#00FF00', message: "model accuracy : $acc ", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            } else {
+
+            slackSend color: '#ff0000', message: "model accuracy is less than expected : $acc, aborting job", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            currentBuild.result = 'ABORTED'
+            error("Aborting the job because accuracy is less.")
+            }
+            archiveArtifacts artifacts: '**/*result.txt, **/*.h5, **/*.pkl', followSymlinks: false
+
+            }
+
+            }
+            }
+
+            stage('dockerizing the flask application'){
+            steps{
+            script{
+            sh '''
+            rm -fr Dockerfile
+            mv DOCKERDEPLOY Dockerfile
+            ls -l
+            '''
+
+
+            }
+            }
+            }
+
+            //Build docker image
+            stage('Build flask docker Image'){
+            steps{
+            script{
+            slackSend color: '#000000', message: "building docker image", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            dockerImage = docker.build("asaad27/my_repo:${env.BUILD_TAG}")
+            }
+            }
+            }
+
+            stage('Running Docker Image'){
+            steps{
+            script{
+            slackSend color: '#000000', message: "running docker image : 127.0.0.1:5000", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            sh """
+            pwd
+
+            docker run --rm -p 5000:5000 asaad27/my_repo:${env.BUILD_TAG}
+            """
+            }
+            }
+            }
+
+            //Push Docker Image
+            stage('Push Docker Image'){
+            steps{
+            script{
+            slackSend color: '#000000', message: "pushing docker image to dockerhub : asaad27/my_repo:${env.BUILD_TAG}", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            docker.withRegistry('', 'dockerhub'){
+            dockerImage.push();
+            dockerImage.push('latest');
+            }
+            }
+            }
+            }
+
+
+            }
+
+
+            post {
+            always {
+            echo 'The service is running'
+            }
+
+            success {
+            echo 'The service is running: Success'
+            slackSend color: '#00FF00', message: "build finished successfully", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            }
+
+            failure {
+            echo 'The service is running: Failure'
+            slackSend color: '#e50000 ', message: "build failed", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            }
+            }
+
+            }
+
+        </script>
+        <sandbox>true</sandbox>
+    </definition>
+    <triggers/>
+    <disabled>false</disabled>
+</flow-definition>

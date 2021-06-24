@@ -78,7 +78,7 @@
             stage('Build docker Image') {
             steps {
             script {
-            slackSend color: '#000000', message: "building docker image", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            slackSend color: '#0000FF', message: "building docker image", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
             sh """
             pwd
             docker build -t asaad27/my_repo:ModelTrainig${env.JOB_NAME} .
@@ -105,7 +105,7 @@
             stage('checking accuracy') {
             steps {
             script {
-            slackSend color: '#000000', message: "collecting results", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            slackSend color: '#0000FF', message: "collecting results", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
             def acc = readFile(file: 'result.txt')
             sh """
             pwd
@@ -139,7 +139,7 @@
 
             failure {
             echo 'The service is running: Failure'
-            slackSend color: '#FF0000 ', message: "build failed", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
+            slackSend color: '#8B0000 ', message: "build failed", tokenCredentialId: '47dd3c74-c484-4c3f-8cba-732276cc70a9'
             }
             }
 

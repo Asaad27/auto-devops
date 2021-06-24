@@ -43,6 +43,19 @@
 <!-- end of navbar-->
 
 
+
+<div class="container">
+    <a href="https://www.pfa-5yd9181.slack.com">
+        <img class="align-content-center"  style="width:250px;height:100px;" th:src="@{assets/img/slack.png}" target="_blank">
+    </a>
+
+</div>
+
+<div class="container">
+    <a th:href="@{'http://localhost:8080/job/' + ${project.project_title} + '/workflow-stage/'  } " target="_blank">
+        <img class="align-content-center"  style="width:250px;height:100px;" th:src="@{assets/img/jenkins.png}">
+    </a>
+</div>
 <div th:if="${isRunning}">
 
     <div class="spinner-border text-dark" role="status">
@@ -60,13 +73,6 @@
 </div>
 
 <div class="container">
-    <a href="https://www.pfa-5yd9181.slack.com">
-        <img class="align-content-center"  style="width:500px;height:200px;" th:src="@{assets/img/slack.png}">
-    </a>
-
-</div>
-
-<div class="container">
     <div class="row">
         <div class="col-lg-10 mt-5 mb-5">
             <table id="examples" class="table table-bordered" style="width: 100%">
@@ -81,19 +87,7 @@
                 <td th:text="${project?.project_statue}">Statue</td>
                 </tr>
                 </tbody>
-            </table>
 
-        </div>
-    </div>
-
-</div>
-
-
-
-<div class="container">
-    <div class="row">
-        <div class="col-lg-10 mt-5 mb-5">
-            <table id="example" class="table table-bordered" style="width: 100%">
                 <thead>
                 <tr>
                     <th>Artefacts</th>
@@ -110,10 +104,13 @@
 
                 </tr>
                 </tbody>
+
             </table>
 
         </div>
     </div>
+
+
 </div>
 
 </body>

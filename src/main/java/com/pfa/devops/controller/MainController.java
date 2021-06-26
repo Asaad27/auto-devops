@@ -5,10 +5,7 @@ import com.cdancy.jenkins.rest.JenkinsClient;
 import com.cdancy.jenkins.rest.domain.common.IntegerResponse;
 import com.cdancy.jenkins.rest.domain.system.SystemInfo;
 import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.model.Artifact;
-import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.Job;
-import com.offbytwo.jenkins.model.JobWithDetails;
+import com.offbytwo.jenkins.model.*;
 import com.pfa.devops.jenkins.CustomPair;
 import com.pfa.devops.jenkins.JenkinsJob;
 import com.pfa.devops.model.Project;
@@ -85,6 +82,9 @@ public class MainController {
 			userService.addProject(UserController.current_user.getUser_id(), project);
 			UserController.current_user = userService.findById(UserController.current_user.getUser_id());
 		}
+		else
+			project = projectService.findByName(project.getProject_title());
+
 		//check project type again
 		isRunning = true;
 		project.find_project_Type();
@@ -112,7 +112,7 @@ public class MainController {
 	public String resultGet(Model model) {
 
 		model.addAttribute("project", project);
-		model.addAttribute("isRunning", this.isRunning);
+		model.addAttribute("isRunning",isRunning);
 		model.addAttribute("artifacts", artifacts);
 
 		if (!isRunning && !project.getProject_statue().equals("BUILD FINISHED")) {
@@ -130,7 +130,13 @@ public class MainController {
 				jobWithDetails.updateDescription(project.getProject_description());
 				Build build = jobWithDetails.getLastBuild();
 				isRunning = build.details().isBuilding();
-			} catch (IOException e) {
+				Build nextBuild = job.details().getBuildByNumber(jobWithDetails.getNextBuildNumber());
+				if (nextBuild != null)
+					isRunning = isRunning || nextBuild.details().isBuilding();
+
+				System.out.println("is running " + isRunning);
+				System.out.println("next build " + jobWithDetails.getNextBuildNumber());
+			} catch (IOException | URISyntaxException e) {
 				e.printStackTrace();
 			}
 		}
@@ -141,7 +147,6 @@ public class MainController {
 
 
 	public void createProject() {
-
 
 		try {
 			this.jenkins = new JenkinsServer(new URI(JenkinsJob.JENKINS_URI), JenkinsJob.USERNAME, JenkinsJob.PASSWORD);

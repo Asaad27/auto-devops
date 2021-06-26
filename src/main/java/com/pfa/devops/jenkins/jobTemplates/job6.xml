@@ -92,7 +92,7 @@
             sh """
             pwd
 
-            docker run --rm -p 5000:5000 asaad27/my_repo:${env.BUILD_TAG}
+            docker run --rm -p 5000:5000 asaad27/my_repo:${env.BUILD_TAG} &amp;
             """
             }
             }
